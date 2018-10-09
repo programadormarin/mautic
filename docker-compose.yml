@@ -1,0 +1,67 @@
+version: '3.5'
+
+services:
+  mysql:
+    container_name: mysql
+    build: ./devops/mysql
+    ports:
+       - "3306:3306"
+    volumes:
+       - ./devops/sql:/root
+    environment:
+       - MYSQL_ROOT_PASSWORD=root
+       - MYSQL_DATABASE=mautic
+       - MYSQL_USER=mautic
+       - MYSQL_PASSWORD=mautic
+  php:
+    container_name: php
+    build: ./devops/php
+    environment:
+       - MYSQL_HOST=mysql
+       - MYSQL_DATABASE=mautic
+       - MYSQL_USER=mautic
+       - MYSQL_PASSWORD=mautic
+    volumes:
+      - .:/var/www/html
+    expose:
+      - "9000"
+    links:
+      - mysql
+  composer:
+    container_name: composer
+    image: composer
+    user: "1000"
+    volumes:
+        - .:/app
+    command: install -o
+    depends_on:
+        - php
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./devops/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - php
+  js: &js
+    container_name: nodejs
+    build: ./devops/nodejs
+    volumes:
+      - .:/gb:rw
+    working_dir: /gb
+  npm:
+    <<: *js
+    container_name: npm
+    entrypoint: ["npm"]
+  grunt:
+    <<: *js
+    container_name: grunt
+    entrypoint: ["grunt"]
+  yarn:
+    <<: *js
+    container_name: yarn
+    entrypoint: ["yarn"]
+    
