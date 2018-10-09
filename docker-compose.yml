@@ -27,15 +27,6 @@ services:
       - "9000"
     links:
       - mysql
-  composer:
-    container_name: composer
-    image: composer
-    user: "1000"
-    volumes:
-        - .:/app
-    command: install -o
-    depends_on:
-        - php
   nginx:
     container_name: nginx
     image: nginx:latest

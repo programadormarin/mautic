@@ -44,5 +44,10 @@ RUN docker-php-ext-enable xdebug \
 
 RUN usermod -u 1000 www-data 
 
+#Install composer
+
+RUN curl -sS https://getcomposer.org/installer | \
+    php -- --install-dir=/usr/bin/ --filename=composer
+
 USER 1000
 CMD php-fpm -F
